@@ -2,6 +2,7 @@ package dao;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import tool.Tool;
 
 import java.sql.*;
 
@@ -24,7 +25,7 @@ public class Dao {
     //  Query의 결과를 JsonArray로 리턴하는 Method
     public JSONArray getJsonArray(String query) throws SQLException {
         //  Query를 날림!
-        Connection connection = getConnection();
+        Connection connection = Tool.getInstance().getConnection(0);
         PreparedStatement preparedStatement = connection.prepareStatement(query);
         JSONArray jsonArray = new JSONArray();
 
@@ -61,8 +62,5 @@ public class Dao {
         return jsonArray;
     }
 
-    public final java.sql.Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/iu?verifyServerCertificate=false&useSSL=false&serverTimezone=UTC", "root", "1234");
-    }
 
 }

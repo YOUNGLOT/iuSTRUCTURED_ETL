@@ -179,7 +179,7 @@ var etlClick = async function ETLClick(etlTrId) {
     //
     const STRUCTURED_ETL_ID = etlTrId.replace("etl", "");
 
-    const query = etlClickQuery.replace("jsSTRUCTURED_ETL_ID",` '${STRUCTURED_ETL_ID}' ` ).replace("jsSTRUCTURED_ETL_ID",` '${STRUCTURED_ETL_ID}' ` );
+    const query = etlClickQuery.replace("jsSTRUCTURED_ETL_ID", ` '${STRUCTURED_ETL_ID}' `).replace("jsSTRUCTURED_ETL_ID", ` '${STRUCTURED_ETL_ID}' `);
 
     //  클릭한 etl에서 ETL그룹네임, 설명을 가져온 후 column 위에 넣는다
     const structuredEtl = document.getElementById("structuredETL").children[(document.querySelector(`.etl${STRUCTURED_ETL_ID}`).rowIndex - 1)].innerText.split('\t');
@@ -297,18 +297,18 @@ var extractLoading = function (responseData, readonly, disableOption) {
     if (data[key = "EXTRACT_SPLITBY"] != null) {
         convertedKey = convert(key);
         value = String(data[key]);
-        disable = (value == "") ? disableOption : "";
+        disable = (value == " value='unchecked' ") ? disableOption : "";
         makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable} onkeyup="fnChkByte(this, 20)"></span></span>`);
     }
     if (data[key = "EXTRACT_ERASE_HEADER"] != null) {
         convertedKey = convert(key);
         value = String(data[key]);
         disable = (value == "") ? disableOption : "";
-        let checked = "";
+        let checked = " value='unchecked' ";
         if (value == "1") {
-            checked = "checked";
+            checked = "checked value='checked' ";
         }
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><input id="text${key}" id="headerDelete" class="checkBox" type="checkbox" ${checked} ${disable} ></span></span>`);
+        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><input id="check${key}" id="headerDelete" class="checkBox" type="checkbox" ${checked} ${disable} onchange="checkBoxChange(id)"></span></span>`);
     }
     if (data[key = "EXTRACT_DELETE_OPTION"] != null) {
         convertedKey = convert(key);
@@ -316,10 +316,10 @@ var extractLoading = function (responseData, readonly, disableOption) {
         disable = (value == "") ? disableOption : "";
         let checked = "";
         if (value == "1") {
-            checked = "checked";
+            checked = "checked value='checked' ";
         }
-        addSpan("textEXTRACT_ERASE_HEADER", `EXTRACT_ERASE_HEADER`, "span", "EXTRACT_DELETE_OPTION", `<label class="label">${convertedKey}</label><input id="text${key}" class="checkBox" type="checkbox" ${checked} ${disable} >`);
-        document.getElementById("textEXTRACT_ERASE_HEADER").className = "checkBox";
+        addSpan("checkEXTRACT_ERASE_HEADER", `EXTRACT_ERASE_HEADER`, "span", "EXTRACT_DELETE_OPTION", `<label class="label">${convertedKey}</label><input id="check${key}" class="checkBox" type="checkbox" ${checked} ${disable} onchange="checkBoxChange(id)">`);
+        document.getElementById("checkEXTRACT_ERASE_HEADER").className = "checkBox";
     }
     if (data[key = "EXTRACT_SOURCE_COLUMN"] != null) {
         convertedKey = convert(key);
@@ -396,15 +396,13 @@ var extractLoading = function (responseData, readonly, disableOption) {
         convertedKey = convert(key);
         value = String(data[key]);
         disable = (value == "") ? disableOption : "";
-        let all = "";
+        let all = " value='unchecked' ", partition = " value='unchecked' ";
         if (value == "전체") {
-            all = "checked"
+            all = "checked value='checked' "
+        } else if (value == "PARTITION") {
+            partition = "checked value='checked' ";
         }
-        let partition = "";
-        if (value == "PARTITION") {
-            partition = "checked";
-        }
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label>전체<input id="text${key}" class="checkBox" type="checkbox" ${all} ${disable} ></span><span>Partition<input class="checkBox" type="checkbox" ${partition} ${disable} ></span></span>`);
+        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label>전체<input id="opt${key}" class="checkBox" type="checkbox" ${all} ${disable} onchange="checkBoxChange(id)" ></span><span>Partition<input id="partition${key}" class="checkBox" type="checkbox" ${partition} ${disable} onchange="checkBoxChange(id)" ></span></span>`);
     }
     if (data[key = "LOAD_DELETE_STANDARD_COLUMN"] != null) {
         convertedKey = convert(key);
@@ -470,7 +468,7 @@ var addSpan = function (valueContainerId, spanId, tagName, key, innerHTML) {
 
 var definition = function () {
     const query = definitionQuery;
-    
+
     vanillaAjax("ajax", query, function (responseData) {
         const etlGroupDefine = document.getElementById("etlGroupDefine");
         //  tbodt 에 차곡차곡 적재
@@ -621,9 +619,11 @@ var clearComboBox = function (ComboBoxId, defaultOption) {
 }
 
 var setSample = function (value) {
-    if (value == "선택") { return; }
+    if (value == "선택") {
+        return;
+    }
 
-    const query = setSampleQuery.replace("jsValue",`'${value}'`).replace("jsValue",`'${value}'`);
+    const query = setSampleQuery.replace("jsValue", `'${value}'`).replace("jsValue", `'${value}'`);
 
     vanillaAjax("ajax", query, function (responseData) {
         const extractAndLoadData = JSON.parse(responseData)[0][0];
@@ -719,15 +719,15 @@ var insertETL = function () {
 var updateETL = function () {
     const check = confirm("정말로 수정 하시겠습니까?");
     if (check == true) {
-        let newData = makeNewData(), updateSet = "", STRUCTURED_ETL_ID = clickedEtlId.replace("etl","");
+        let newData = makeNewData(), updateSet = "", STRUCTURED_ETL_ID = clickedEtlId.replace("etl", "");
         newData["ETL_GROUP_ID"] = `(select ETL_GROUP_ID from etl_group where ETL_GROUP_NAME = '${document.getElementById("etlGroupNameInColumnText").value}' )`;
 
         const newDataKeys = Object.keys(newData);
 
         for (let i = 0; i < newDataKeys.length; i++) {
-            if(i == 0) {
+            if (i == 0) {
                 updateSet += ` ${newDataKeys[i]} = ${newData[newDataKeys[i]]} `;
-            }else{
+            } else {
                 updateSet += `, ${newDataKeys[i]} = ${newData[newDataKeys[i]]} `;
             }
         }
@@ -744,7 +744,7 @@ var updateETL = function () {
 var deleteETL = function () {
     const check = confirm("정말로 삭제 하시겠습니까?");
     if (check == true) {
-        let STRUCTURED_ETL_ID = clickedEtlId.replace("etl","");
+        let STRUCTURED_ETL_ID = clickedEtlId.replace("etl", "");
         const query = `delete from structured_etl where STRUCTURED_ETL_ID = '${STRUCTURED_ETL_ID}' `;
         vanillaAjax("ajax", query, function (responseData) {
             alert("성공");
@@ -764,10 +764,60 @@ var makeNewData = function () {
             newData[`${keys[i]}`] = `(select CODE_ID from code where CODE_NAME = '${document.getElementById(`select${keys[i]}`).value}' limit 1)`;
         } else if (document.getElementById(`text${keys[i]}`)) {
             newData[`${keys[i]}`] = `'${document.getElementById(`text${keys[i]}`).value}'`;
+        } else if (document.getElementById(`check${keys[i]}`)) {
+            newData[`${keys[i]}`] = (document.getElementById(`check${keys[i]}`).getAttribute("value") == "checked") ? 1 : 0;
+        } else if (document.getElementById(`opt${keys[i]}`)) {
+            newData[`${keys[i]}`] = `(select CODE_ID from code where CODE_NAME = '${(document.getElementById("optLOAD_MERGE_OPT_CODE").getAttribute("value") == "checked") ? "전체" : (document.getElementById("partitionLOAD_MERGE_OPT_CODE").getAttribute("value") == "checked") ? "PARTITION" : ""}' limit 1)`;
         }
     }
 
     newData["CONTEXT"] = `'${document.getElementById("etlGroupContextInColumn").value}'`;
 
     return newData;
+}
+
+var checkBoxChange = function (id) {
+
+    let optLOAD_MERGE_OPT_CODE = document.getElementById("optLOAD_MERGE_OPT_CODE");
+    let partitionLOAD_MERGE_OPT_CODE = document.getElementById("partitionLOAD_MERGE_OPT_CODE");
+
+    if (id == "optLOAD_MERGE_OPT_CODE") {
+        if (optLOAD_MERGE_OPT_CODE.getAttribute("value") == "checked") {
+            optLOAD_MERGE_OPT_CODE.setAttribute("value", "unchecked");
+        } else {
+            optLOAD_MERGE_OPT_CODE.setAttribute("value", "checked");
+            if (partitionLOAD_MERGE_OPT_CODE.getAttribute("value") == "checked") {
+                partitionLOAD_MERGE_OPT_CODE.setAttribute("value", "unchecked");
+                document.getElementById("partitionLOAD_MERGE_OPT_CODE").checked = false;
+            }
+        }
+    }
+
+    if (id == "partitionLOAD_MERGE_OPT_CODE") {
+        if (partitionLOAD_MERGE_OPT_CODE.getAttribute("value") == "checked") {
+            partitionLOAD_MERGE_OPT_CODE.setAttribute("value", "unchecked");
+        } else {
+            partitionLOAD_MERGE_OPT_CODE.setAttribute("value", "checked");
+            if (optLOAD_MERGE_OPT_CODE.getAttribute("value") == "checked") {
+                optLOAD_MERGE_OPT_CODE.setAttribute("value", "unchecked");
+                document.getElementById("optLOAD_MERGE_OPT_CODE").checked = false;
+            }
+        }
+    }
+
+    if(id == "checkEXTRACT_ERASE_HEADER"){
+        if (checkEXTRACT_ERASE_HEADER.getAttribute("value") == "checked") {
+            checkEXTRACT_ERASE_HEADER.setAttribute("value", "unchecked");
+        } else {
+            checkEXTRACT_ERASE_HEADER.setAttribute("value", "checked");
+        }
+    }
+    if(id == "checkEXTRACT_DELETE_OPTION"){
+        if (checkEXTRACT_DELETE_OPTION.getAttribute("value") == "checked") {
+            checkEXTRACT_DELETE_OPTION.setAttribute("value", "unchecked");
+        } else {
+            checkEXTRACT_DELETE_OPTION.setAttribute("value", "checked");
+        }
+    }
+
 }

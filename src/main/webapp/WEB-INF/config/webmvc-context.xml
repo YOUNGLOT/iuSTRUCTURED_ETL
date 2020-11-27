@@ -24,4 +24,5 @@
     <!-- 정적 리소스 경로 설정 -->
     <resources mapping="/javascript/**" location="/javascript/"/>
     <resources mapping="/css/**" location="/css/"/>
+    <resources mapping="/resources/**" location="WEB-INF/"/>
 </beans:beans>
