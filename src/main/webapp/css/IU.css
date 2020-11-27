@@ -1,0 +1,114 @@
+body {
+    margin: 30px;
+}
+
+/* 버튼들 */
+
+.button_Set {
+    float: right;
+}
+
+/*  버튼들의 기본 css */
+.basicButton {
+    background-color: #999999;
+    border: 1px #444444;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    width: 70px;
+    height: 20px;
+}
+
+/*  ETL 기본정보    */
+.CURD_Container{
+    width: 100%;
+    height: 325px;
+}
+
+.CRUD_left_basic {
+    border: black;
+    width: 601px;
+    float: left;
+    border: 1px solid;
+    height: 300px;
+    padding: 10px;
+    display: inline-block;
+}
+
+/*  ETL 추출, 적재   */
+.CRUD_left {
+    font-size: 15px;
+    border: black;
+    width: 568px;
+    margin-left: 20px;
+    float: left;
+    border: 1px solid;
+    height: 300px;
+    padding: 10px;
+    display: inline-block;
+}
+
+/* table 들 기본 속성 */
+/*th, td {*/
+/*    border: 1px solid #444444;*/
+/*    padding: 2px;*/
+/*}*/
+
+/* ETL 설명 */
+.textBox1 {
+    width: 200px; /* 원하는 너비 설정 */
+    border: 1px solid #999;
+}
+
+/* ETL 그룹명, 적재 유형 */
+.combobox1 {
+    width: 200px;
+    border: 1px solid #999;
+}
+
+.comboBox2 {
+    width: 287px;
+    border: 1px solid #999;
+}
+
+/* (정형 ETL 작업 등록/ 수정/ 삭제 - 기본정보) ETL그룹명, ETL설명 */
+
+.label {
+    width : 106px;
+    display: inline-block;
+}
+
+.textBox2 {
+    width: 280px;
+    border: 1px solid #999;
+}
+
+/* 추출, 적재 박스들 */
+
+.text {
+    width: 424px;
+    border: 1px solid #999;
+}
+
+.comboBox {
+    width: 430px;
+    border: 1px solid #999;
+}
+
+.checkBox{
+    width: 150px;
+    border: 1px solid #999;
+    display: inline-block;
+    margin-right: 13px;
+}
+
+.halftextAndComboBox {
+    width: 155px;
+    border: 1px solid #999;
+    display: inline-block;
+    margin-right: 13px;
+}
+
+

@@ -1,0 +1,95 @@
+/* ETL 정보 출력 table */
+.table1Container{
+    height: 420px;
+}
+
+.tbody1 {
+    overflow-y: auto;
+    overflow-x: hidden;
+    float: left;
+    width: 100%;
+    max-height: 500px;
+}
+
+.scrolltbody1 {
+    display: block;
+    width: auto;
+    border-collapse: collapse;
+    border: 2px solid #000;
+}
+.scrolltbody1 th { border: 1px solid #000;}
+.scrolltbody1 td { border: 1px solid #000; border-top: 0; }
+.scrolltbody1 tbody {
+    display: block;
+    height: 400px;
+    overflow: auto;
+}
+.scrolltbody1 th:nth-of-type(1), .scrolltbody1 td:nth-of-type(1) { width: 40px; }
+.scrolltbody1 th:nth-of-type(2), .scrolltbody1 td:nth-of-type(2) { width: 310px; }
+.scrolltbody1 th:nth-of-type(3), .scrolltbody1 td:nth-of-type(3) { width: 100px; }
+.scrolltbody1 th:nth-of-type(4), .scrolltbody1 td:nth-of-type(4) { width: 380px; }
+.scrolltbody1 th:nth-of-type(5), .scrolltbody1 td:nth-of-type(5) { width: 100px; }
+.scrolltbody1 th:nth-of-type(6), .scrolltbody1 td:nth-of-type(6) { width: 350px; }
+.scrolltbody1 th:nth-of-type(7), .scrolltbody1 td:nth-of-type(7) { width: 140px; }
+.scrolltbody1 th:nth-of-type(8), .scrolltbody1 td:nth-of-type(8) { width: 270px; }
+.scrolltbody1 th:nth-of-type(9), .scrolltbody1 td:nth-of-type(9) { width: 104px;  text-align: center; }
+
+.tbody2{
+    height: 300px;
+    overflow: auto;
+}
+
+.scrolltbody2 {
+    display: block;
+    width: auto;
+    border-collapse: collapse;
+    border: 2px solid #000;
+    font-size: 0.8em;
+    margin-top: 10px;
+}
+.scrolltbody2 th { border: 1px solid #000;}
+.scrolltbody2 td { border: 1px solid #000; border-top: 0; }
+.scrolltbody2 tbody {
+    display: block;
+    height: 165px;
+    overflow: auto;
+}
+.scrolltbody2 th:nth-of-type(1) { width: 30px; }
+.scrolltbody2 th:nth-of-type(4) { width: 100px; }
+
+.scrolltbody2 td:nth-of-type(1) { width: 31px; }
+.scrolltbody2 td:nth-of-type(2) { width: 140px; }
+.scrolltbody2 td:nth-of-type(3) { width: 70px; }
+.scrolltbody2 td:nth-of-type(4) { width: 140px; }
+.scrolltbody2 td:nth-of-type(5) { width: 70px; }
+.scrolltbody2 td:nth-of-type(6) { width: 102px; }
+
+.table3Container {
+    height: 420px;
+}
+
+.tbody3 {
+    overflow-y: auto;
+    overflow-x: hidden;
+    float: left;
+    width: 100%;
+    max-height: 500px;
+}
+.tbody3 tr {
+    height: 50px;
+}
+
+.scrolltbody3 {
+    display: block;
+    width: auto;
+    border-collapse: collapse;
+    border: 2px solid #000;
+}
+
+.scrolltbody3 th        {    border: 1px solid #000;}
+.scrolltbody3 td        {    border: 1px solid #000;    border-top: 0;}
+.scrolltbody3 tbody     {    display: block;    height: 400px;    overflow: auto;}
+.scrolltbody3 th:nth-of-type(1), .scrolltbody3 td:nth-of-type(1) {    width: 400px;}
+.scrolltbody3 th:nth-of-type(2), .scrolltbody3 td:nth-of-type(2) {    width: 168px;}
+.scrolltbody3 th:nth-of-type(3), .scrolltbody3 td:nth-of-type(3) {    width: 168px;}
+
