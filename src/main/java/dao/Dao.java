@@ -3,7 +3,6 @@ package dao;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import tool.Tool;
-
 import java.sql.*;
 
 public class Dao {
@@ -23,14 +22,16 @@ public class Dao {
     //endregion
 
     //  Query의 결과를 JsonArray로 리턴하는 Method
-    public JSONArray getJsonArray(String query) throws SQLException {
+    public JSONArray getJsonArray(String type, String query) throws SQLException {
         //  Query를 날림!
         Connection connection = Tool.getInstance().getConnection(0);
         PreparedStatement preparedStatement = connection.prepareStatement(query);
-        JSONArray jsonArray = new JSONArray();
+
+        //  결과
+        JSONArray resultJSONArray = new JSONArray();
 
         //select 일 경우
-        try {
+        if(type.equals("select")){
             ResultSet resultSet = preparedStatement.executeQuery();
 
             //  MetaData를 가져 온 후 결과를 Json 에 담기 위해 Columns 를 가져옴
@@ -46,21 +47,19 @@ public class Dao {
                 for (int i = 0; i < columns.length; i++) {
                     obj.put(columns[i], resultSet.getString(columns[i]));
                 }
-                jsonArray.add(obj);
+                resultJSONArray.add(obj);
             }
             resultSet.close();
 
-            //  insert or update or delete 일 경우
-        } catch (Exception e) {
+            //  insert || update || delete 일 경우
+        } else {
             int rowCount = preparedStatement.executeUpdate();
-            jsonArray.add(new JSONObject().put("INSERT", rowCount));
+            resultJSONArray.add(new JSONObject().put(type, rowCount));
         }
         //  닫아주기
         preparedStatement.close();
         connection.close();
 
-        return jsonArray;
+        return resultJSONArray;
     }
-
-
 }

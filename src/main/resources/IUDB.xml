@@ -5,22 +5,28 @@
         <id>root</id>
         <password>1234</password>
     </connection>
+    <!--    여러개의 커넥션 지원   -->
+    <connection>
+        <url>jdbc:mysql://127.0.0.1:3306/iu?verifyServerCertificate=false&amp;useSSL=false&amp;serverTimezone=UTC</url>
+        <id>root</id>
+        <password>1234</password>
+    </connection>
     <query>
-        <id>getETLGroupNamequery</id>
+        <key>getETLGroupNameQuery</key>
         <value>
             select ETL_GROUP_NAME from etl_group
         </value>
     </query>
     <query>
-        <id>getLoadTypequery</id>
+        <key>loadTypeChange</key>
         <value>
             select (select CODE_NAME from code where CODE_ID = LOAD_TYPE_CODE) as LOAD_TYPE from
             etl_group_load_type_code where ETL_GROUP_ID = (select ETL_GROUP_ID from etl_group where ETL_GROUP_NAME =
-            etlGroupName )
+            replaceString0 )
         </value>
     </query>
     <query>
-        <id>loadEtlquery</id>
+        <key>loadEtlQuery</key>
         <value>
             select
             structured_etl.STRUCTURED_ETL_ID as STRUCTURED_ETL_ID,
@@ -37,10 +43,11 @@
             from etl_group as etl_group
             right join structured_etl as structured_etl
             on structured_etl.ETL_GROUP_ID = etl_group.ETL_GROUP_ID
+            replaceString0
         </value>
     </query>
     <query>
-        <id>etlClickquery</id>
+        <key>etlClickquery0</key>
         <value>
             select
             STRUCTURED_ETL_COLUMN_ID,
@@ -50,10 +57,12 @@
             LOAD_TYPE,
             CONVERSION_CODE
             from structured_etl_column
-            where STRUCTURED_ETL_ID = jsSTRUCTURED_ETL_ID ;
-
-            _splitString_
-
+            where STRUCTURED_ETL_ID = replaceString0
+        </value>
+    </query>
+    <query>
+        <key>etlClickquery1</key>
+        <value>
             select
             (select CODE_NAME from code where CODE_ID = EXTRACT_DELIMITER_CODE) as EXTRACT_DELIMITER_CODE,
             (select CODE_NAME from code where CODE_ID = EXTRACT_CHARSET_CODE) as EXTRACT_CHARSET_CODE,
@@ -82,34 +91,38 @@
             LOAD_DELETE_STANDARD_COLUMN,
             LOAD_DELETE_STANDARD_VALUE
             from structured_etl
-            where STRUCTURED_ETL_ID = jsSTRUCTURED_ETL_ID ;
-
-            _splitString_
-
+            where STRUCTURED_ETL_ID = replaceString0
+        </value>
+    </query>
+    <query>
+        <key>code</key>
+        <value>
             select * from code;
         </value>
     </query>
     <query>
-        <id>definitionquery</id>
+        <key>definitionQuery</key>
         <value>
             select
             (select ETL_GROUP_NAME from etl_group where ETL_GROUP_ID = structured_etl.ETL_GROUP_ID) as ETL_GROUP_NAME,
             count(*) as COUNT,
             count(distinct(structured_etl.SCHEDULE)) as SCHEDULE
             from structured_etl as structured_etl
-            GROUP BY ETL_GROUP_ID;
+            GROUP BY ETL_GROUP_ID
         </value>
     </query>
     <query>
-        <id>setSamplequery</id>
+        <key>setSamplequery0</key>
         <value>
             select
             (select CODE_NAME from code where CODE_ID = etl_group.EXTRACT_OBJECT_CODE) as EXTRACT_OBJECT_CODE,
             (select CODE_NAME from code where CODE_ID = etl_group.LOAD_OBJECT_CODE) as LOAD_OBJECT_CODE
-            from etl_group as etl_group where etl_group.ETL_GROUP_NAME = jsvalue ;
-
-            _splitString_
-
+            from etl_group as etl_group where etl_group.ETL_GROUP_NAME = replaceString0
+        </value>
+    </query>
+    <query>
+        <key>setSamplequery1</key>
+        <value>
             select
             (select CODE_NAME from code where CODE_ID = EXTRACT_DELIMITER_CODE) as EXTRACT_DELIMITER_CODE,
             (select CODE_NAME from code where CODE_ID = EXTRACT_CHARSET_CODE) as EXTRACT_CHARSET_CODE,
@@ -138,12 +151,27 @@
             LOAD_DELETE_STANDARD_COLUMN,
             LOAD_DELETE_STANDARD_VALUE
             from structured_etl
-            where ETL_GROUP_ID = (select ETL_GROUP_ID from etl_group where ETL_GROUP_NAME = jsvalue )
-            limit 1;
-
-            _splitString_
-
-            select * from code;
+            where ETL_GROUP_ID = (select ETL_GROUP_ID from etl_group where ETL_GROUP_NAME = replaceString0 )
+            limit 1
         </value>
     </query>
+    <query>
+        <key>insertETL</key>
+        <value>
+            insert into structured_etl ( replaceString0 ) values ( replaceString1 )
+        </value>
+    </query>
+    <query>
+        <key>updateETL</key>
+        <value>
+            update structured_etl set replaceString0 where STRUCTURED_ETL_ID = replaceString1
+        </value>
+    </query>
+    <query>
+        <key>deleteETL</key>
+        <value>
+            delete from structured_etl where STRUCTURED_ETL_ID = replaceString0
+        </value>
+    </query>
+
 </iu>

@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>IU</title>
     <script src="javascript/IU.js"></script>
-    <script src="javascript/Query.js"></script>
+    <script src="javascript/Event.js"></script>
     <script src="javascript/LayerPop.js"></script>
     <link rel="stylesheet" href="css/IU.css"/>
     <link rel="stylesheet" href="css/Table.css"/>

@@ -5,7 +5,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
@@ -31,7 +30,7 @@ public class Tool {
     //endregion
 
     //  for java
-    //  private final String XMLFILEPATH = "./src/main/resources/IUDB.xml";
+    //private final String XML_FILE_PATH = "./src/main/resources/IUDB.xml";
     //  for tomcat
     private final String XML_FILE_PATH = "IUDB.xml";
 
@@ -65,7 +64,7 @@ public class Tool {
         return null;
     }
 
-    public Map<String, String> getIdQueryMap() {
+    public Map<String, String> queryCollector() {
         try {
             Map<String, String> map = new HashMap<>();
             NodeList queryList = getNodeListByTagName("query");
@@ -73,9 +72,9 @@ public class Tool {
             for (int i = 0; i < queryList.getLength(); i++) {
                 Node queryNode = queryList.item(i);
                 if (queryNode.getNodeType() == Node.ELEMENT_NODE) {
-                    Element personElmnt = (Element) queryNode;
-                    String id = personElmnt.getElementsByTagName("id").item(0).getFirstChild().getNodeValue();
-                    String value = personElmnt.getElementsByTagName("value").item(0).getFirstChild().getNodeValue();
+                    Element queryElement = (Element) queryNode;
+                    String id = queryElement.getElementsByTagName("key").item(0).getFirstChild().getNodeValue();
+                    String value = queryElement.getElementsByTagName("value").item(0).getFirstChild().getNodeValue();
                     map.put(id, value);
                 }
             }
@@ -92,4 +91,5 @@ public class Tool {
         document.getDocumentElement().normalize();
         return document.getElementsByTagName(tagName);
     }
+
 }

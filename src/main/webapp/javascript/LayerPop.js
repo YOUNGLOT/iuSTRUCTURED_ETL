@@ -1,22 +1,21 @@
-var wrapWindowByMask = function () {
 
+var wrapWindowByMask = function () {
+    //  윈도우(머리객체) 의 크기에 맞춰서 mask 를 적용
     document.getElementById("mask").style.width = `${window.innerWidth}px`;
     document.getElementById("mask").style.height = `${window.innerHeight}px`;
 
+    //  나타나게 하는 함수!
     fadeIn("mask");
 }
 
 var popupOpen = function () {
     const layerbox = document.getElementById("layerbox");
-    layerbox.style.position = "absolute";
-    //layerbox.style.top = `${(window.innerHeight - new Number(layerbox.style.height.replace("px", ""))) / 2 + window.scrollY }px`;
-
     layerbox.style.top = `${(window.innerHeight - 491) / 2 + window.scrollY }px`;
     layerbox.style.left = `${(window.innerWidth - 770) / 2 + window.scrollX }px`;
+    layerbox.style.position = "absolute";
     layerbox.style.display = "block";
+
     makeDraggable("layerbox");
-    //  이 함수는 IU에 넣을게요 DB에서 ajax 통신하는거거덩
-    definition();
 }
 
 var popupClose = function () {
@@ -24,6 +23,7 @@ var popupClose = function () {
     document.getElementById("mask").style.display = "none";
 }
 
+//  정의 현황 을 눌렀을 때 작동하는 함수
 var goDetail = function () {
     popupOpen(); //레이어 팝업창 오픈
     wrapWindowByMask(); //화면 마스크 효과
@@ -43,7 +43,7 @@ var fadeIn = function (id) {
 };
 
 var makeDraggable = function (id) {
-    var object = document.getElementById(id), initX, initY, firstX, firstY;
+    let object = document.getElementById(id), initX, initY, firstX, firstY;
     object.addEventListener('mousedown', function (e) {
 
         e.preventDefault();
@@ -90,6 +90,7 @@ var makeDraggable = function (id) {
     }
 }
 
+//  정의 현황 + - 변하는 버튼 (Detail 활성화/비활성화)
 var openCloseButton = function (id) {
     const display = document.getElementById(id).style.display;
     if (display == "none") {
