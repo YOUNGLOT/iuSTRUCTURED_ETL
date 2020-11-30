@@ -77,7 +77,7 @@ var loadEtl = function () {
             let row = etlTable.insertRow(etlTable.rows.length);
             //   tr 에 Id 와 Class, Event 함수들 속성 Set
             row.setAttribute("id", `etl${jsonData[i].STRUCTURED_ETL_ID}`);
-            row.setAttribute("class", `etl${jsonData[i].STRUCTURED_ETL_ID}`);
+            row.setAttribute("class", `etl${i%2}`);
             row.setAttribute("onclick", `etlClick(id)`);
             row.setAttribute("onmouseover", `mouseIn(id)`);
             row.setAttribute("onmouseout", `mouseOut(id)`);
@@ -121,16 +121,16 @@ var etlClick = async function ETLClick(etlTrId) {
     const STRUCTURED_ETL_ID = clickedEtlId.replace("etl", "");
 
     //  클릭한 etl에서 ETL그룹네임, 설명을 가져온 후 column 위에 넣는다
-    const structuredEtl = document.getElementById("structuredETL").children[(document.querySelector(`.etl${STRUCTURED_ETL_ID}`).rowIndex - 1)].innerText.split('\t');
+    const structuredEtl = document.getElementById("structuredETL").children[(document.querySelector(`#etl${STRUCTURED_ETL_ID}`).rowIndex - 1)].innerText.split('\t');
     document.getElementById("etlGroupNameInColumnText").value = structuredEtl[1];
     document.getElementById("etlGroupContextInColumn").value = structuredEtl[7];
 
     //  컬럼을 추가할 기준 element를 비움
-
     clearTalble("etlColumns");
     clearNodes("extract");
     clearNodes("load");
 
+    //  element 를 객체에 담아 놓음
     const etlColumns = document.getElementById("etlColumns");
     var extract = document.getElementById("extract");
     var load = document.getElementById("load");
@@ -143,12 +143,11 @@ var etlClick = async function ETLClick(etlTrId) {
 
     //  ajax 시작!
     vanillaAjax("postAjax", requestString, function (responseData) {
-
-        //  첫번째 Query 가 etl Column 조회였으니 첫번째 response 는 컬럼데이터지!! 예쁘게 넣으면 끝
         const etlColumnData = JSON.parse(responseData)[0];
         for (let i = 0; i < etlColumnData.length; i++) {
             var row = etlColumns.insertRow(etlColumns.rows.length);
             row.setAttribute("id", `'column${etlColumnData[i].STRUCTURED_ETL_COLUMN_ID}'`);
+            row.setAttribute("class", `etl${i%2}`);
             row.setAttribute("onmouseover", `mouseIn(id)`);
             row.setAttribute("onmouseout", `mouseOut(id)`);
             row.insertCell(0).innerHTML = `<td>${(i + 1)}</td>`;
@@ -163,20 +162,21 @@ var etlClick = async function ETLClick(etlTrId) {
             row.insertCell(5).innerHTML = `<td>${convertCode}</td>`;
         }
 
+        //  두 유형은 이미 화면에 정보가 있기 때문에 DB에서 가져오지 않고 위에서 가져옴
         //  추출 유형
         const extractDiv = document.createElement("div");
         extractDiv.innerHTML = `<label class="label">유형</label><input class="text" type="text" value="${structuredEtl[2]}"  readonly="true" >`;
         extract.appendChild(extractDiv);
+
         // 적제 유형
         const loadDiv = document.createElement("div");
         loadDiv.innerHTML = `<label class="label">유형</label><input class="text" type="text" value="${structuredEtl[4]}"  readonly="true" >`;
         load.appendChild(loadDiv);
 
+        //  Extract 와 Load 를 화면에 뿌려주는 함수 (2번 사용되기 때문에 함수로 만들었어요)
         extractLoading(responseData, "readonly = 'true'", "disabled='true'");
     });
 }
-
-
 
 
 var definition = function () {
@@ -211,7 +211,9 @@ var definition = function () {
 
 
 var setSample = function (ETL_GROUP_NAME) {
-    if (ETL_GROUP_NAME == "선택") { return; }
+    if (ETL_GROUP_NAME == "선택") {
+        return;
+    }
 
     const requestString = JSON.stringify([
         {type: "select", query: "setSamplequery0", replaceString0: `'${ETL_GROUP_NAME}'`},
@@ -246,7 +248,6 @@ var setSample = function (ETL_GROUP_NAME) {
         extractLoading(responseData, "", "");
     });
 }
-
 
 
 var insertETL = function () {
@@ -315,6 +316,7 @@ var deleteETL = function () {
             alert("성공");
         });
     }
+    reset();
     loadEtl();
 }
 
@@ -401,81 +403,84 @@ var vanillaAjax = function (url, requestData, successFunction) {
             }
         }
     };
-    //  전 Post 방식을 사용하겠습니다. 이유 : 보안!
     xmlHttpRequest.open("POST", url);
     //  Type 을 Json 으로
     xmlHttpRequest.setRequestHeader("Content-Type", "application/json");
     //  받은 Data를 전송
-    xmlHttpRequest.send(JSON.stringify(requestData));
+    //xmlHttpRequest.send(JSON.stringify(requestData));
+    xmlHttpRequest.send(requestData);
 }
 
+//  for 문으로 작성하지 않은 이유 : 순서를 확실하게 고정, 각각의 컬럼마다 특성을 정확하게 구현
 var extractLoading = function (responseData, readonly, disableOption) {
     clickedETLIdData = JSON.parse(responseData)[1][0];
+    const codes = JSON.parse(responseData)[2];
+
     let convertedKey, key, value, disable;
     if (clickedETLIdData[key = "EXTRACT_DELIMITER_CODE"] != null) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><select id="select${key}" class="comboBox" ${disable}><option>${value}</option></select></span></span>`);
-        setOptions(`select${key}`, value, responseData);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><select id="select${key}" class="comboBox" ${disable}><option>${value}</option></select></span>`);
+        setOptions(`select${key}`, value, codes);
     }
     if (clickedETLIdData[key = "EXTRACT_CHARSET_CODE"] != null) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
         addSpan("selectEXTRACT_DELIMITER_CODE", "EXTRACT_DELIMITER_CODE", "span", "EXTRACT_CHARSET_CODE", `<label class="label">${convertedKey}</label><select id="select${key}" class="halftextAndComboBox" ${disable}><option>${value}</option></select>`);
-        setOptions(`select${key}`, value, responseData);
+        setOptions(`select${key}`, value, codes);
     }
     if (clickedETLIdData[key = "EXTRACT_FILEPATH"] != null) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable} onkeyup="fnChkByte(this, 45)"></span></span>`);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable} onkeyup="fnChkByte(this, 45)"></span>`);
     }
     if (clickedETLIdData[key = "EXTRACT_DB"] != null) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable} onkeyup="fnChkByte(this, 20)"></span></span>`);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable} onkeyup="fnChkByte(this, 20)"></span>`);
     }
     if (clickedETLIdData[key = "EXTRACT_COLLECTION_RANGE_CODE"] != null) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><select id="select${key}" class="comboBox" ${disable} ><option>${value}</option></select></span></span>`);
-        setOptions(`select${key}`, value, responseData);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><select id="select${key}" class="comboBox" ${disable} ><option>${value}</option></select></span></span>`);
+        setOptions(`select${key}`, value, codes);
     }
     if (clickedETLIdData[key = "EXTRACT_TABLE_NAME"] != null) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable} onkeyup="fnChkByte(this, 45)"></span></span>`);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable} onkeyup="fnChkByte(this, 45)"></span>`);
     }
     if (clickedETLIdData[key = "EXTRACT_COMPRESSION_TYPE_CODE"] != null) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><select id="select${key}" class="comboBox" ${disable} ><option>${value}</option></select></span></span>`);
-        setOptions(`select${key}`, value, responseData);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><select id="select${key}" class="comboBox" ${disable} ><option>${value}</option></select></span></span>`);
+        setOptions(`select${key}`, value, codes);
     }
     if (clickedETLIdData[key = "EXTRACT_REMOTE_PATH"] != null) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable} onkeyup="fnChkByte(this, 45)"></span></span>`);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable} onkeyup="fnChkByte(this, 45)"></span>`);
     }
     if (clickedETLIdData[key = "EXTRACT_STANDARD_COLUMN"] != null) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
         value = (value == "") ? "선택" : value;
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable} onkeyup="fnChkByte(this, 20)"></span></span></span></span>`);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable} onkeyup="fnChkByte(this, 20)"></span></span></span></span>`);
     }
     if (clickedETLIdData[key = "EXTRACT_SPLITBY"] != null) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == " value='unchecked' ") ? disableOption : "";
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable} onkeyup="fnChkByte(this, 20)"></span></span>`);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable} onkeyup="fnChkByte(this, 20)"></span>`);
     }
     if (clickedETLIdData[key = "EXTRACT_ERASE_HEADER"] != null) {
         convertedKey = convert(key);
@@ -485,7 +490,7 @@ var extractLoading = function (responseData, readonly, disableOption) {
         if (value == "1") {
             checked = "checked value='checked' ";
         }
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><input id="check${key}" id="headerDelete" class="checkBox" type="checkbox" ${checked} ${disable} onchange="checkBoxChange(id)"></span></span>`);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><input id="check${key}" id="headerDelete" class="checkBox" type="checkbox" ${checked} ${disable} onchange="checkBoxChange(id)"></span>`);
     }
     if (clickedETLIdData[key = "EXTRACT_DELETE_OPTION"] != null) {
         convertedKey = convert(key);
@@ -502,72 +507,72 @@ var extractLoading = function (responseData, readonly, disableOption) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable} onkeyup="fnChkByte(this, 20)"></span></span>`);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable} onkeyup="fnChkByte(this, 20)"></span>`);
     }
     if (clickedETLIdData[key = "LOAD_DB"] != null) {
-        convertedKey = convert(key);
+        convertedKey = convert(key),
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable}   ${readonly}  onkeyup="fnChkByte(this, 45)"></span></span>`);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable}   ${readonly}  onkeyup="fnChkByte(this, 45)"></span>`);
     }
     if (clickedETLIdData[key = "LOAD_FORMAT_CODE"] != null) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
         addSpan("textLOAD_DB", "LOAD_DB", "span", "LOAD_FORMAT_CODE", `<label class="label">${convertedKey}</label><select id="select${key}" class="halftextAndComboBox" style="width: 149px" ${disable}><option>${value}</option></select>`);
-        setOptions(`select${key}`, value, responseData);
+        setOptions(`select${key}`, value, codes);
     }
     if (clickedETLIdData[key = "LOAD_TABLE_NAME"] != null) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable}   ${readonly}  onkeyup="fnChkByte(this, 45)"></span></span>`);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable}   ${readonly}  onkeyup="fnChkByte(this, 45)"></span>`);
     }
     if (clickedETLIdData[key = "LOAD_TABLE_CONTEXT"] != null) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable}   ${readonly}  onkeyup="fnChkByte(this, 100)"></span></span>`);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable}   ${readonly}  onkeyup="fnChkByte(this, 100)"></span>`);
     }
     if (clickedETLIdData[key = "LOAD_DELIMITER_CODE"] != null) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><select id="select${key}" class="comboBox" ${disable} ><option>${value}</option></select></span></span>`);
-        setOptions(`select${key}`, value, responseData);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><select id="select${key}" class="comboBox" ${disable} ><option>${value}</option></select></span></span>`);
+        setOptions(`select${key}`, value, codes);
     }
     if (clickedETLIdData[key = "LOAD_CHARSET_CODE"] != null) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><select id="select${key}" class="comboBox" ${disable} ><option>${value}</option></select></span></span>`);
-        setOptions(`select${key}`, value, responseData);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><select id="select${key}" class="comboBox" ${disable} ><option>${value}</option></select></span></span>`);
+        setOptions(`select${key}`, value, codes);
     }
     if (clickedETLIdData[key = "LOAD_PATH"] != null) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable} onkeyup="fnChkByte(this, 45)"></span></span>`);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable} onkeyup="fnChkByte(this, 45)"></span>`);
     }
     if (clickedETLIdData[key = "LOAD_COMPRESSION_TYPE_CODE"] != null) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><select id="select${key}" class="comboBox" ${disable} ><option>${value}</option></select></span></span>`);
-        setOptions(`select${key}`, value, responseData);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><select id="select${key}" class="comboBox" ${disable} ><option>${value}</option></select></span></span>`);
+        setOptions(`select${key}`, value, codes);
     }
     if (clickedETLIdData[key = "LOAD_PARTITION"] != null) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable}   ${readonly}  onkeyup="fnChkByte(this, 20)"></span></span>`);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable}   ${readonly}  onkeyup="fnChkByte(this, 20)"></span>`);
     }
     if (clickedETLIdData[key = "LOAD_TYPE_CODE"] != null) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><select id="select${key}" class="comboBox" ${disable} ><option>${value}</option></select></span></span>`);
-        setOptions(`select${key}`, value, responseData);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><select id="select${key}" class="comboBox" ${disable} ><option>${value}</option></select></span></span>`);
+        setOptions(`select${key}`, value, codes);
     }
     if (clickedETLIdData[key = "LOAD_MERGE_OPT_CODE"] != " ") {
         convertedKey = convert(key);
@@ -579,24 +584,23 @@ var extractLoading = function (responseData, readonly, disableOption) {
         } else if (value == "PARTITION") {
             partition = "checked value='checked' ";
         }
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label>전체<input id="opt${key}" class="checkBox" type="checkbox" ${all} ${disable} onchange="checkBoxChange(id)" ></span><span>Partition<input id="partition${key}" class="checkBox" type="checkbox" ${partition} ${disable} onchange="checkBoxChange(id)" ></span></span>`);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label>전체<input id="opt${key}" class="checkBox" type="checkbox" ${all} ${disable} onchange="checkBoxChange(id)" ></span><span>Partition<input id="partition${key}" class="checkBox" type="checkbox" ${partition} ${disable} onchange="checkBoxChange(id)" ></span></span>`);
     }
     if (clickedETLIdData[key = "LOAD_DELETE_STANDARD_COLUMN"] != null) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable} onkeyup="fnChkByte(this, 20)"></span></span>`);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable} onkeyup="fnChkByte(this, 20)"></span>`);
     }
     if (clickedETLIdData[key = "LOAD_DELETE_STANDARD_VALUE"] != null) {
         convertedKey = convert(key);
         value = String(clickedETLIdData[key]);
         disable = (value == "") ? disableOption : "";
-        makeDiv("div", key, `<span id="${key}"><span><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable} onkeyup="fnChkByte(this, 45)"></span></span>`);
+        makeDiv("div", key, `<span id="${key}"><label class="label">${convertedKey}</label><input id="text${key}" class="text" type="text" value="${value}" ${disable} onkeyup="fnChkByte(this, 45)"></span>`);
     }
 }
 
-var setOptions = function (codeId, codeValue, responseData) {
-    const codes = JSON.parse(responseData)[2];
+var setOptions = function (codeId, codeValue, codes) {
     //  value 값으로 코드 아이디 가져와서
     let key;
     for (let i = 0; i < codes.length; i++) {
@@ -605,6 +609,7 @@ var setOptions = function (codeId, codeValue, responseData) {
             break;
         }
     }
+
     //  코드 네임 array 생성
     let codeArray = [];
     for (let i = 0; i < codes.length; i++) {
@@ -640,9 +645,9 @@ var addSpan = function (valueContainerId, spanId, tagName, key, innerHTML) {
         makeDiv("div", key, `<span id="${key}"><span>${innerHTML}</span></span>`);
     }
     element.className = "halftextAndComboBox";
-    const span = document.createElement(tagName);
-    span.innerHTML = innerHTML;
-    document.getElementById(spanId).appendChild(span);
+    const newElement = document.createElement(tagName);
+    newElement.innerHTML = innerHTML;
+    document.getElementById(spanId).appendChild(newElement);
 }
 
 //  column name 을 사용자에게 보여질 String 으로 컨버팅
@@ -738,6 +743,7 @@ var convert = function (columnName) {
 
 //  insert, update 를 위해서 현재 화면에 있는 정보들로 STRUCTURED_ETL data의 일부를 생성
 var makeNewData = function () {
+    //  빈 json 생성
     let newData = {};
 
     const keys = Object.keys(clickedETLIdData);

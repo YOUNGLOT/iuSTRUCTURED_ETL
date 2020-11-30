@@ -7,7 +7,11 @@ var mouseIn = function (id) {
 
 var mouseOut = function (id) {
     if (clickedEtlId != id) {
-        document.getElementById(id).style.backgroundColor = "#fff";
+        if (document.getElementById(id).className == "etl1") {
+            document.getElementById(id).style.backgroundColor = "#f1f1f1";
+        } else {
+            document.getElementById(id).style.backgroundColor = "#fff";
+        }
     }
 }
 

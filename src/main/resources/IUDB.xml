@@ -5,7 +5,7 @@
         <id>root</id>
         <password>1234</password>
     </connection>
-    <!--    여러개의 커넥션 지원   -->
+    <!--    여러개의 커넥션 가능   -->
     <connection>
         <url>jdbc:mysql://127.0.0.1:3306/iu?verifyServerCertificate=false&amp;useSSL=false&amp;serverTimezone=UTC</url>
         <id>root</id>
@@ -41,7 +41,7 @@
             structured_etl.CONTEXT as CONTEXT,
             structured_etl.SCHEDULE as SCHEDULE
             from etl_group as etl_group
-            right join structured_etl as structured_etl
+            join structured_etl as structured_etl
             on structured_etl.ETL_GROUP_ID = etl_group.ETL_GROUP_ID
             replaceString0
         </value>
@@ -173,5 +173,4 @@
             delete from structured_etl where STRUCTURED_ETL_ID = replaceString0
         </value>
     </query>
-
 </iu>

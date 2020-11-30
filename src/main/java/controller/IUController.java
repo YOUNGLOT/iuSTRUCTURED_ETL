@@ -8,6 +8,7 @@ import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import tool.Tool;
+
 import java.sql.SQLException;
 
 @Controller
@@ -20,7 +21,7 @@ public class IUController {
     }
 
     //  ajaxMapper
-    @RequestMapping(value = "/postAjax", method = RequestMethod.POST, produces = "application/text; charset=utf8") // produce charset설정
+    @RequestMapping(value = "/postAjax", method = RequestMethod.POST, produces = "application/text; charset=utf8")// produce charset설정
     @ResponseBody
     public String postAjax(@RequestBody String request) throws SQLException, ParseException {
         System.out.println("postAjax request : " + request);

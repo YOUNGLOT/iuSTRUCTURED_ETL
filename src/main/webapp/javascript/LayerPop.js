@@ -1,4 +1,3 @@
-
 var wrapWindowByMask = function () {
     //  윈도우(머리객체) 의 크기에 맞춰서 mask 를 적용
     document.getElementById("mask").style.width = `${window.innerWidth}px`;
@@ -10,8 +9,9 @@ var wrapWindowByMask = function () {
 
 var popupOpen = function () {
     const layerbox = document.getElementById("layerbox");
-    layerbox.style.top = `${(window.innerHeight - 491) / 2 + window.scrollY }px`;
-    layerbox.style.left = `${(window.innerWidth - 770) / 2 + window.scrollX }px`;
+    //  495, 774 는 layer 팝업창의 크기
+    layerbox.style.top = `${(window.innerHeight - 495) / 2 + window.scrollY}px`;
+    layerbox.style.left = `${(window.innerWidth - 774) / 2 + window.scrollX}px`;
     layerbox.style.position = "absolute";
     layerbox.style.display = "block";
 
@@ -103,7 +103,7 @@ var openCloseButton = function (id) {
     if (event.ctrlKey) {
         const rowCount = document.getElementById("etlGroupDefine").rows.length / 2;
         for (let i = 0; i < rowCount; i++) {
-            if(`detail${i}` != id) {
+            if (`detail${i}` != id) {
                 document.getElementById(`detail${i}`).style.display = "none";
                 document.getElementById(`buttondetail${i}`).innerText = "+";
             }

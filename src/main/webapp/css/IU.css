@@ -50,11 +50,9 @@ body {
     display: inline-block;
 }
 
-/* table 들 기본 속성 */
-/*th, td {*/
-/*    border: 1px solid #444444;*/
-/*    padding: 2px;*/
-/*}*/
+.etl1 {
+    background-color: #f1f1f1;
+}
 
 /* ETL 설명 */
 .textBox1 {
